@@ -1,0 +1,69 @@
+1. create My_Blog_Project:
+        here django version was: 3.0.2 installed!
+	> django-admin startproject My_Blog_Project
+and open VS
+
+2. create virtual env and activate
+in CMD:
+        python -m venv env
+        env\Scripts\activate
+
+3.  then, install django: 3.2
+        pip install django==3.2
+4.  and install pillow:
+        pip install pillow
+5.
+here we work with 2 app
+Blog and Login
+        py manage.py startapp App_Login 
+        py manage.py startapp App_Blog 
+
+6. create folder: 
+        templates
+        media
+        static
+and link them in Setting.py
+i. Setting.py:
+        INSTALLED_APPS = [
+                'django.contrib.admin',
+                'django.contrib.auth',
+                'django.contrib.contenttypes',
+                'django.contrib.sessions',
+                'django.contrib.messages',
+                'django.contrib.staticfiles',
+        ->     'App_Blog',
+        ->     'App_Login'
+        ]
+
+ii. templates, static, media:
+
+        # Build paths inside the project like this: BASE_DIR / 'subdir'.
+        BASE_DIR = Path(__file__).resolve().parent.parent
+        TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+        STATIC_DIR = os.path.join(BASE_DIR, 'static')
+        MEDIA_DIR = os.path.join(BASE_DIR, 'media')
+
+iii. TEMPLATES_DIR:
+        TEMPLATES = [
+        {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        ->      'DIRS': [TEMPLATES_DIR, ],
+                'APP_DIRS': True,
+                'OPTIONS': {
+                        'context_processors': [
+                                'django.template.context_processors.debug',
+                                'django.template.context_processors.request',
+                                'django.contrib.auth.context_processors.auth',
+                                'django.contrib.messages.context_processors.messages',
+                        ],
+                },
+                },
+        ]
+
+iv. static and media:
+        STATIC_URL = '/static/'
+        STATIC_DIR = [STATIC_DIR, ]
+
+        # MEDIA
+        MEDIA_ROOT = MEDIA_DIR
+        MEDIA_URL = '/media'
