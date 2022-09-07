@@ -1,5 +1,5 @@
 1. create My_Blog_Project:
-        here django version was: 3.0.2 installed!
+   i.     here django version was: 3.0.2 installed!
 	> django-admin startproject My_Blog_Project
 and open VS
 
@@ -8,17 +8,18 @@ in CMD:
         python -m venv env
         env\Scripts\activate
 
-3.  then, install django: 3.2
+3.  
+i.  then, install django: 3.2
         pip install django==3.2
-4.  and install pillow:
+ii.  and install pillow:
         pip install pillow
-5.
-here we work with 2 app
+
+4.here we work with 2 app
 Blog and Login:
         py manage.py startapp App_Login 
         py manage.py startapp App_Blog 
 
-6. create folder: 
+create folder: 
         templates
         media
         static
@@ -69,7 +70,7 @@ and link them in Setting.py
                 MEDIA_URL = '/media/'
 
 V2:
-7. create Model
+5. create Model
 App_Login/models.py:
         // here create UserProfile
         then run migration
@@ -90,7 +91,7 @@ App_Blog/models.py:
                 > py manage.py migrate
 
 
-8. create superuser:
+6. create superuser:
         >py manage.py createsuperuser
 
         Username (leave blank to use 'asadu'): admin
@@ -108,7 +109,7 @@ App_Blog/models.py:
         // here we will not see any model,
         cz we didn;t register any model
 
-9. register model:
+7. register model:
  App_Blog/admin.py:
         from App_Blog.models import Blog, Comment, Likes
 
@@ -126,4 +127,164 @@ App_Login/admin.py:
         admin.site.register(UserProfile)  
 
 Now we can see all models
+
+
+
+
+
+V3:
+8. main project urls.py:
+->       from django.urls import path, include
+
+        urlpatterns = [
+                path('admin/', admin.site.urls),
+->              path('account/', include('App_Login.urls')),
+->              path('blog/', include('App_Blog.urls')),
+                # path('',)
+        ]
+
+9. now create a view for project folder:
+My_Blog_Project/views.py:
+
+        from django.http import HttpResponse
+
+
+        def Index(request):
+        return HttpResponse("I am homepage")
+
+10.
+urls.py:
+
+        from . import views
+
+        urlpatterns = [
+        path('admin/', admin.site.urls),
+        path('account/', include('App_Login.urls')),
+        path('blog/', include('App_Blog.urls')),
+->      path('', views.Index, name='index'),
+        ]
+
+11: avoid error, create urls.py file in App_Blog and App_Login:
+App_Login/urls.py:
+        from django.urls import path
+
+        urlpatterns = [
+
+        ]
+
+App_Blog/urls.py:
+        from django.urls import path
+
+        urlpatterns = [
+
+        ]
+
+now run server, and see weverthing is ok
+
+
+12:
+create folder in templates:
+        App_Blog
+        App_Login
+
+and a base.html file
+i.boilerplate:
+        <!doctype html>
+        <html lang="en">
+        <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+
+        <title>{% block title_block %} Blogs {% endblock %}</title>
+        </head>
+        <body>
+
+
+
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        </body>
+        </html>
+
+ii. add navigation:
+
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'index' %}">Home <span class="sr-only">(current)</span></a>
+            </li>
+            {% comment %} <li class="nav-item">
+              <a class="nav-link" href="#">Features</a>
+            </li> {% endcomment %}
+          </ul>
+        </div>
+      </nav>
+
+
+13. create template: template/App_Blog/blog_list.html
+
+i. and in base.html:
+    {% block body_block %}
+
+    {% endblock %}
+
+ii. blog_list.html:
+        {% extends 'base.html' %}
+        {% block title_block %} Home {% endblock %}
+        {% block body_block %}
+        <h1>I am blog homepage</h1>
+
+
+        {% endblock %}
+
+14.
+App_Blog/view.py:
+from django.shortcuts import render
+
+# Create your views here.
+
+
+def blog_list(request):
+    return render(request, 'App_Blog/blog_list.html', context={})
+
+
+15. App_Blog/urls.py:
+
+from django.urls import path
+# from . import views
+from App_Blog import views
+
+app_name = 'App_Blog'
+
+urlpatterns = [
+    path('', views.blog_list, name='blog_list'),
+]
+
+
+16. set the site home page:
+        (when type site name only, it redirect in blog.html)
+i.  viwes.py > Index:
+                from django.http import HttpResponse
+                from django.urls import reverse
+                from django.shortcuts import HttpResponseRedirect
+
+
+                def Index(request):
+                return HttpResponseRedirect(reverse('App_Blog:blog_list'))
+
+here rediction:
+        main urls: '' 
+                view > Index:      redirect:     App_Blog:blog_list
+                        (App_Blog > urls > blog_list)
+                                blog_list: App_Blog/blog_list.html
+
+
+ 
+
 
