@@ -286,5 +286,104 @@ here rediction:
 
 
  
+V4:
+17. App_Login/views.py:
+        from django.shortcuts import render
+        from django.contrib.auth.forms import UserCreationForm
+
+        # Create your views here.
+
+
+        def sign_up(request):
+        form = UserCreationForm()
+        registered = False
+        if request.method == 'POST':
+                form = UserCreationForm(data=request.POST)
+                if form.is_valid():
+                form.save()
+                registered = True
+
+        dict = {'form': form, 'registered': registered}
+        return render(request, 'App_Login/signup.html', context=dict)
+
+18.templates/App_Login/signup.html:
+        {% extends 'base.html' %}
+        {% block title_block %} Create New Account {% endblock %}
+        {% block body_block %}
+        {% if registered %}
+        <div class="alert alert-success">
+        Account Created Successfully! <a href="">Login Here</a>
+        </div>
+        {% else %}
+        <h2>Create New Account:</h2>
+        <form method="POST">
+        {{ form }}
+        <button type="submit" class="btn btn-success btn-sm">Create Account</button>
+        </form>
+        <br>
+        <p>Already have an account? <a href="" >Login Here</a></p>
+        {% endif %}
+        {% endblock %}
+
+19. urls pattern
+        App_Login/urls.py
+        from django.urls import path
+        from . import views
+
+        app_name = 'App_Login'
+
+        urlpatterns = [
+        path('signup/', views.sign_up, name='signup')
+        ]
+
+20. at this upper urls in base.html:
+// add a extra navbar:
+        <li class="nav-item">
+              <a class="nav-link" href="{% url 'App_Login:signup' %}">Signup</a>
+            </li>
+
+21. 
+i. install crispy forms:
+        > pip install django-crispy-forms
+
+ii. add this crispy forms in 
+settings.py:
+        INSTALLED_APPS = [
+                'django.contrib.admin',
+                'django.contrib.auth',
+                'django.contrib.contenttypes',
+                'django.contrib.sessions',
+                'django.contrib.messages',
+                'django.contrib.staticfiles',
+                'App_Blog',
+                'App_Login',
+                'crispy_forms',
+        ]
+
+iii.
+note: form esob diye handle korte pari:
+        bootstrap, bootstrap3, bootstrap4, uni-form
+        // ekhane bootstrap4 use korbo
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+iv. use this crispy form :
+so, load crispy form in signup.html
+
+        {% load crispy_forms_tags %}
+
+and 
+        {{ form|crispy }}
+
+
+v. keep base.html in a div container:
+base.html:
+
+    <div class="container" style="padding-top:20px">
+      {% block body_block %}
+
+      {% endblock %}
+    </div>
+
 
 
