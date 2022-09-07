@@ -14,7 +14,7 @@ in CMD:
         pip install pillow
 5.
 here we work with 2 app
-Blog and Login
+Blog and Login:
         py manage.py startapp App_Login 
         py manage.py startapp App_Blog 
 
@@ -23,47 +23,107 @@ Blog and Login
         media
         static
 and link them in Setting.py
-i. Setting.py:
-        INSTALLED_APPS = [
-                'django.contrib.admin',
-                'django.contrib.auth',
-                'django.contrib.contenttypes',
-                'django.contrib.sessions',
-                'django.contrib.messages',
-                'django.contrib.staticfiles',
-        ->     'App_Blog',
-        ->     'App_Login'
-        ]
+        i. Setting.py:
+                INSTALLED_APPS = [
+                        'django.contrib.admin',
+                        'django.contrib.auth',
+                        'django.contrib.contenttypes',
+                        'django.contrib.sessions',
+                        'django.contrib.messages',
+                        'django.contrib.staticfiles',
+                ->     'App_Blog',
+                ->     'App_Login'
+                ]
 
-ii. templates, static, media:
+        ii. templates, static, media:
 
-        # Build paths inside the project like this: BASE_DIR / 'subdir'.
-        BASE_DIR = Path(__file__).resolve().parent.parent
-        TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
-        STATIC_DIR = os.path.join(BASE_DIR, 'static')
-        MEDIA_DIR = os.path.join(BASE_DIR, 'media')
+                # Build paths inside the project like this: BASE_DIR / 'subdir'.
+                BASE_DIR = Path(__file__).resolve().parent.parent
+                TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+                STATIC_DIR = os.path.join(BASE_DIR, 'static')
+                MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
-iii. TEMPLATES_DIR:
-        TEMPLATES = [
-        {
-                'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        ->      'DIRS': [TEMPLATES_DIR, ],
-                'APP_DIRS': True,
-                'OPTIONS': {
-                        'context_processors': [
-                                'django.template.context_processors.debug',
-                                'django.template.context_processors.request',
-                                'django.contrib.auth.context_processors.auth',
-                                'django.contrib.messages.context_processors.messages',
-                        ],
-                },
-                },
-        ]
+        iii. TEMPLATES_DIR:
+                TEMPLATES = [
+                {
+                        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                ->      'DIRS': [TEMPLATES_DIR, ],
+                        'APP_DIRS': True,
+                        'OPTIONS': {
+                                'context_processors': [
+                                        'django.template.context_processors.debug',
+                                        'django.template.context_processors.request',
+                                        'django.contrib.auth.context_processors.auth',
+                                        'django.contrib.messages.context_processors.messages',
+                                ],
+                        },
+                        },
+                ]
 
-iv. static and media:
-        STATIC_URL = '/static/'
-        STATIC_DIR = [STATIC_DIR, ]
+        iv. static and media:
+                STATIC_URL = '/static/'
+                STATIC_DIR = [STATIC_DIR, ]
 
-        # MEDIA
-        MEDIA_ROOT = MEDIA_DIR
-        MEDIA_URL = '/media'
+                # MEDIA
+                MEDIA_ROOT = MEDIA_DIR
+                MEDIA_URL = '/media/'
+
+V2:
+7. create Model
+App_Login/models.py:
+        // here create UserProfile
+        then run migration
+                > py manage.py migrate
+                > py manage.py makemigrations App_Login
+                > py manage.py migrate
+
+App_Blog/models.py:
+        // create Blog model:
+
+        // create Comment model:
+
+        // create reaction: Likes model
+
+        then make migration:
+                > py manage.py migrate
+                > py manage.py makemigrations App_Blog
+                > py manage.py migrate
+
+
+8. create superuser:
+        >py manage.py createsuperuser
+
+        Username (leave blank to use 'asadu'): admin
+        Email address: asdujjaman255@gmail.com
+        Password: 1234
+        Password (again): 1234
+        Bypass password validation and create user anyway? [y/N]: y
+        Superuser created successfully.
+
+
+        >py manage.py runserver
+                // and go admin site:
+                http://127.0.0.1:8000/admin
+        
+        // here we will not see any model,
+        cz we didn;t register any model
+
+9. register model:
+ App_Blog/admin.py:
+        from App_Blog.models import Blog, Comment, Likes
+
+        # Register your models here.
+
+        admin.site.register(Blog)
+        admin.site.register(Comment)
+        admin.site.register(Likes)
+
+App_Login/admin.py:
+        from App_Login.models import UserProfile
+
+        # Register your models here.
+
+        admin.site.register(UserProfile)  
+
+Now we can see all models
+
