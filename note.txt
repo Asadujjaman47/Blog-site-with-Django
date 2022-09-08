@@ -462,3 +462,163 @@ take login page e niya asa hobe:
 setting.py:
 
         LOGIN_URL = '/account/login/'
+
+
+V6:
+add email address in Sign up:
+30. create forms.py file in App_Login:
+
+        from dataclasses import fields
+        from django import forms
+        from django.contrib.auth.forms import UserCreationForm
+        from django.contrib.auth.models import User
+
+        class SignUpForm(UserCreationForm):
+        email = forms.EmailField(label="Email Address", required=True)
+        class Meta:
+                model = User
+                fields = ('username', 'email', 'password1', 'password2')
+
+ 31. sign_up viwes te amader create kora form use korbO:
+ App_Login > views.py:
+        from App_Login.forms import SignUpForm
+
+                form = SignUpForm()   
+
+32. create user profile:
+i. templates/App_Login/profile.html:
+        {% extends 'base.html' %}
+        {% block title_block %} Profile {% endblock %}
+        {% block body_block %}
+        <h2>Your Profile</h2>
+        <p>Username: {{ user.username }} </p>
+        <p>Email: {{ user.email }} </p>
+        <p>Name: {{ user.first_name }} {{ user.last_name }}</p>
+
+        {% endblock %}
+
+ii. call user profile, write a view:
+App_Login/views.py:
+        @login_required
+        def profile(request):
+        return render(request, 'App_login/profile.html', context={})
+
+iii. now add a link in base.html:
+        <li class="nav-item">
+              <a class="nav-link" href="{% url 'App_Login:profile' %}">Your Profile</a>
+        </li>
+
+iv. add urls
+App_Login/urls.py:
+    path('profile/', views.profile, name='profile'),
+
+33. profile details info change:
+i. App_Login/forms.py:
+
+        class UserProfileChange(UserChangeForm):
+        class Meta:
+                model = User
+                fields = ('username', 'email', 'first_name', 'last_name', 'password')
+
+ii. viwes.py:
+        @login_required
+        def user_change(request):
+        current_user = request.user
+        form = UserProfileChange(instance=current_user)
+        if request.method == 'POST':
+                form = UserProfileChange(request.POST, instance=current_user)
+                if form.is_valid():
+                form.save()
+                form = UserProfileChange(instance=current_user)
+
+        return render(request, 'App_Login/change_profile.html', context={'form': form})
+
+iii. App_Login/change_profile.html:
+
+        {% extends 'base.html' %}
+        {% load crispy_forms_tags %}
+        {% block title_block %} Change Profile {% endblock %}
+        {% block body_block %}
+        <form method="POST">
+        {{ form|crispy }}
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning btn-sm">Change</button>
+        </form>
+
+        {% endblock %}
+
+iv. now add link to go change_profile.html,
+profile.html:
+        <a href="">Change Profile Info</a>
+
+v. App_Login/urls.py:
+    path('change-profile/', views.user_change, name='user_change')
+
+
+vi. now in profile.html:
+        <a href="{% url 'App_Login:user_change' %}" class="btn btn-warning btn-sm">Change Profile Info</a>
+
+34. password change form:
+i. App_Login/views.py:
+        @login_required
+        def pass_change(request):
+        current_user = request.user
+        form = PasswordChangeForm(current_user)
+        if request.method == 'POST':
+                form = PasswordChangeForm(current_user, data=request.POST)
+                if form.is_valid():
+                form.save()
+
+        return render(request, 'App_Login/pass_change.html', context={'form': form})
+
+
+ii. change_pass.html:
+        {% extends 'base.html' %}
+        {% load crispy_forms_tags %}
+        {% block title_block %} Change Password {% endblock %}
+        {% block body_block %}
+        <form method="POST">
+        {{ form|crispy }}
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning btn-sm">Change</button>
+        </form>
+
+        {% endblock %}
+
+iii. urls.py:
+    path('password/', views.pass_change, name='pass_change')
+
+iv: views.py:
+        @login_required
+        def pass_change(request):
+        current_user = request.user
+        changed = False
+        form = PasswordChangeForm(current_user)
+        if request.method == 'POST':
+                form = PasswordChangeForm(current_user, data=request.POST)
+                if form.is_valid():
+                form.save()
+                changed = True
+        return render(request, 'App_Login/pass_change.html', context={'form': form, 'changed': changed})
+
+v: pass_change.html:
+        {% extends 'base.html' %}
+        {% load crispy_forms_tags %}
+        {% block title_block %} Change Password {% endblock %}
+        {% block body_block %}
+        {% if changed %}
+        <div class="alert alert-success">
+        Password Change Successfully!
+        </div>
+        {% endif %}
+        <form method="POST">
+        {{ form|crispy }}
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning btn-sm">Change</button>
+        </form>
+
+        {% endblock %}
+
+// now we can change password.
+
+
