@@ -464,6 +464,7 @@ setting.py:
         LOGIN_URL = '/account/login/'
 
 
+
 V6:
 add email address in Sign up:
 30. create forms.py file in App_Login:
@@ -620,5 +621,159 @@ v: pass_change.html:
         {% endblock %}
 
 // now we can change password.
+
+
+
+V7:
+user profile image:
+here first we put avatar.png image in profile_pics:
+it will show, if anyone not set profile image yet,
+
+35. for show media file:
+i.main project /urls.py:
+
+        from django.contrib.staticfiles.urls import static, staticfiles_urlpatterns
+
+
+        urlpatterns += staticfiles_urlpatterns()
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+ii. profile.html:
+// here, check is there any data in user profile:
+        {% extends 'base.html' %}
+        {% block title_block %} Profile {% endblock %}
+        {% block body_block %}
+        <h2>Your Profile</h2>
+        {% if user.user_profile %}
+        <img src='/media/{{user.user_profile.profile_pic}}' class="rounded-circle" width="100px">
+        {% else %}
+        <img src='/media/profile_pics/avatar.png' class="rounded-circle" width="100px">
+        {% endif %}
+        <p>Username: {{ user.username }} </p>
+        <p>Email: {{ user.email }} </p>
+        <p>Name: {{ user.first_name }} {{ user.last_name }}</p>
+        <br>
+        <a href="{% url 'App_Login:user_change' %}" class="btn btn-warning btn-sm">Change Profile Info</a>
+        {% endblock %}
+
+
+36. if no user image there:
+profile.html:
+        {% if user.user_profile %}
+        <img src='/media/{{user.user_profile.profile_pic}}' class="rounded-circle" width="100px">
+        {% else %}
+        <img src='/media/profile_pics/avatar.png' class="rounded-circle" width="100px">
+        <br>
+        <br>
+        <a href="" class="btn btn-info btn-sm">Change Profile Pic</a>
+        {% endif %}
+
+
+37. for image change:
+i.forms.py:
+
+        class ProfilePic(forms.ModelForm):
+        class Meta:
+                model = UserProfile
+                fields = '__all__'
+
+ii. viwes.py:
+        @login_required
+        def add_pro_pic(request):
+        form = ProfilePic()
+        return render(request, 'App_Login/pro_pic_add.html', context={'form': form})
+
+iii. urls.py:
+    path('add-picture/', views.add_pro_pic, name='add_pro_pic'),
+
+
+iv. create pro_pic_add.html:
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title_block %} Profile {% endblock %}
+{% block body_block %}
+<h2> Add Your Profile Picture:</h2>
+<form method="POST" enctype="multipart/form-data">
+    {{ form|crispy }}
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success btn-sm">Add</button>
+</form>
+{% endblock %}
+
+
+v. now call the view in profile.html:
+        <a href="{% url 'App_Login:add_pro_pic' %}" class="btn btn-info btn-sm">Change Profile Pic</a>
+
+vi. forms.py:
+        class ProfilePic(forms.ModelForm):
+        class Meta:
+                model = UserProfile
+                fields = ['profile_pic', ]
+
+
+
+vii. handle after select image:
+views.py:
+        @login_required
+        def add_pro_pic(request):
+        form = ProfilePic()
+        if request.method == 'POST':
+                form = ProfilePic(request.POST, request.FILES)
+                if form.is_valid():
+                user_obj = form.save(commit=False)
+                user_obj.user = request.user
+                user_obj.save()
+                return HttpResponseRedirect(reverse('App_login:profile'))
+
+        return render(request, 'App_Login/pro_pic_add.html', context={'form': form})
+
+
+
+38. already upload image change:
+i. views.py:
+        @login_required
+        def chnage_pro_pic(request):
+        form = ProfilePic(instance=request.user.user_profile)
+        return render(request, 'App_Login/pro_pic_add.html', context={'form': form})
+
+ii. urls.py:
+    path('change-picture/', views.chnage_pro_pic, name='change_pro_pic'),
+
+iii. call in profile.html:
+        <a href="{% url 'App_Login:change_pro_pic' %}" class="btn btn-info btn-sm">Change Profile Pic</a>
+
+iv. handle submit:
+viwes.py:
+        @login_required
+        def chnage_pro_pic(request):
+        form = ProfilePic(instance=request.user.user_profile)
+        if request.method == 'POST':
+                form = ProfilePic(request.POST, request.FILES,
+                                instance=request.user.user_profile)
+                if form.is_valid():
+                form.save()
+                return HttpResponseRedirect(reverse('App_Login:profile'))
+        return render(request, 'App_Login/pro_pic_add.html', context={'form': form})
+
+
+39. replace old image with new image: django clean up:
+i.      pip install django-cleanup
+ii. settings.py:
+        // add app here:
+        INSTALLED_APPS = [
+                'django.contrib.admin',
+                'django.contrib.auth',
+                'django.contrib.contenttypes',
+                'django.contrib.sessions',
+                'django.contrib.messages',
+                'django.contrib.staticfiles',
+                'App_Blog',
+                'App_Login',
+                'crispy_forms',
+                'django_cleanup.apps.CleanupConfig',
+
+        ]
+
+        // now old image will replace with new image
 
 

@@ -1,10 +1,11 @@
+from pickle import FALSE
 from django.shortcuts import render
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from App_Login.forms import SignUpForm, UserProfileChange
+from App_Login.forms import SignUpForm, UserProfileChange, ProfilePic
 
 # Create your views here.
 
@@ -75,3 +76,29 @@ def pass_change(request):
             form.save()
             changed = True
     return render(request, 'App_Login/pass_change.html', context={'form': form, 'changed': changed})
+
+
+@login_required
+def add_pro_pic(request):
+    form = ProfilePic()
+    if request.method == 'POST':
+        form = ProfilePic(request.POST, request.FILES)
+        if form.is_valid():
+            user_obj = form.save(commit=False)
+            user_obj.user = request.user
+            user_obj.save()
+            return HttpResponseRedirect(reverse('App_login:profile'))
+
+    return render(request, 'App_Login/pro_pic_add.html', context={'form': form})
+
+
+@login_required
+def chnage_pro_pic(request):
+    form = ProfilePic(instance=request.user.user_profile)
+    if request.method == 'POST':
+        form = ProfilePic(request.POST, request.FILES,
+                          instance=request.user.user_profile)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('App_Login:profile'))
+    return render(request, 'App_Login/pro_pic_add.html', context={'form': form})
