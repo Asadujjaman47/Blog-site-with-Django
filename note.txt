@@ -813,4 +813,103 @@ base.html:
         <a class="nav-link" href="{% url 'index' %}"><img src="/media/logo.png" width="50px"></a>
 
 
+V9:
+Blog template creation:
+41.
+create this file in templates/App_Blog:
+blog_details.html:      protekta blog er details dekhabe
+create_blog.html:
+edit_blog.html:
+my_blogs.html:
+
+
+
+
+42:
+i. App_Blog/models.py:
+        // Likes class er object representation
+
+    def __start__(self):
+        return self.user + " likes " + self.blog
+
+ii. App_Blog/views.py:
+class base view niya kaj korbo:
+
+// decorator R mixins er kaj same, button
+// decorator use for funcion view
+// mixins use for classbase view
+
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class CreateBlog(LoginRequiredMixin, CreateView):
+    model = Blog
+    template_name = 'App_Blog/create_blog.html'
+    fields = '__all__'
+
+    
+ii. ei view ke call korar jonno App_Blog/urls.py:
+
+    path('write/', views.CreateBlog.as_view(), name='create_blog'),
+
+iii. etake ekon base.html: e add korbO
+
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{% url 'App_Blog:create_blog' %}">Write Blog</a>
+                    <a class="dropdown-item" href="{% url 'App_Login:profile' %}">Your Profile</a>
+                    <hr>
+                    <a class="dropdown-item" href="{% url 'App_Login:logout' %}">Logout</a>
+                  </div>
+
+iv: create_blog.html:
+
+{% load crispy_forms_tags %}
+
+
+<h2>Write Your Blog Here: </h2>
+<form method="POST">
+    {{ form|crispy}}
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success btn-sm">Publish</button>
+</form>
+
+
+v:
+// ekhane sob field chole asche, Author field ke hide kore dite hobe,
+tai sob field nite parbo na,
+views.py:
+
+        class CreateBlog(LoginRequiredMixin, CreateView):
+        model = Blog
+        template_name = 'App_Blog/create_blog.html'
+        fields = ('blog_title', 'blog_content', 'blog_image', )
+
+
+--------------------------------------------------------------------
+test in console:
+>>> import uuid
+>>> title = "this is a blog post"
+>>> slug = title.replace(" ", "-") + "-" + str(uuid.uuid4())
+>>> print(slug)
+this-is-a-blog-post-c740af1c-5a8d-4db2-b916-0c421de596d3
+-------------------------------------------------------------------
+
+
+    def form_valid(self, form):
+        blog_obj = form.save(commit=False)
+        blog_obj.author = self.request.user      # current use
+        title = blog_obj.blog_title
+        blog_obj.slug = title.replace(" ", "-") + "-" + str(uuid.uuid4())
+        blog_obj.save()
+        return HttpResponseRedirect(reverse('index'))
+
+
+
+
+
+
+
+
+
+
 
