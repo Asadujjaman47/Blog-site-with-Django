@@ -867,7 +867,7 @@ iv: create_blog.html:
 
 
 <h2>Write Your Blog Here: </h2>
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
     {{ form|crispy}}
     {% csrf_token %}
     <button type="submit" class="btn btn-success btn-sm">Publish</button>
@@ -904,11 +904,122 @@ this-is-a-blog-post-c740af1c-5a8d-4db2-b916-0c421de596d3
         return HttpResponseRedirect(reverse('index'))
 
 
+V10:
+43: App_Blog/views.py:
+Now we use classbase view:
+i. views.py:
+class BlogList(ListView):
+    context_object_name = 'blogs'
+    model = Blog
+    template_name = 'App_Blog/blog_list.html'
+
+ii. urls.py:
+    path('', views.BlogList.as_view(), name='blog_list'),
+
+iii. blog_list.html:
+{% extends 'base.html' %}
+{% block title_block %} Home {% endblock %}
+{% block body_block %}
+
+{% for blog in blogs%}
+<h3>{{ blog.blog_title }}</h3>
+<h6>{{ blog.publish_date }}</h6>
+
+{% endfor %}
+
+{% endblock %}
+
+
+// here problem is time zone
+vi. settings.py:
+TIME_ZONE = 'Asia/Dhaka'
+
+// last post agay dekhabo, mean update post sobar samne thakbe:
+1 way:
+viwes.py > BlogList: e    queryset korte pari
+    queryset = Blog.objects.order_by('-publish_date')
+
+here, minus(-) sign dile decending order, r na dile accending order
+
+2nd way: model e modde set kore dite pari:
+
+
+class Blog(models.Model):
+
+    class Meta:
+        ordering = ['-publish_date',]
+                                // eder list ba tupple er modee dite pari
+
+
+v. blog order:
+blog_list.html:
+img and blog side by side:
+
+
+{% for blog in blogs%}
+<h3>{{ blog.blog_title }}</h3>
+<h6><i>{{ blog.publish_date }}</i></h6>
+
+<div class="row">
+    <div class="col-sm-4">
+        <img src="/media/{{blog.blog_image}}" alt="{{blog.blog_title}}" title="{{blog.blog_title}}" width="100%">
+    </div>
+    <div class="col-sm-8">
+        <p>{{blog.blog_content|linebreaks}}</p>
+        <h6>Posted By: <a href="#">@{{blog.author}}</a></h6>
+    </div>
+</div>
+<hr>
+{% endfor %}
 
 
 
 
+v. see more as like custom filter create:
+in App_Blog:
+create a folder templatetags:
+here create file:
+        __init__.py
+        custom_filters.py
 
+in custom_filters.py:
+
+        from atexit import register
+        from django import template
+
+        register = template.Library()
+
+
+        def range_filter(value):
+        return value[0:500] + ".........."
+
+
+        register.filter('range_filter', range_filter)
+
+vi. blog list: // here filter load,
+        // pasa pasi doi ta filter load kora jay:
+        {% extends 'base.html' %}
+->      {% load custom_filters %}
+        {% block title_block %} Home {% endblock %}
+        {% block body_block %}
+
+        {% for blog in blogs%}
+        <h3>{{ blog.blog_title }}</h3>
+        <h6><i>{{ blog.publish_date }}</i></h6>
+
+        <div class="row">
+        <div class="col-sm-4">
+                <img src="/media/{{blog.blog_image}}" alt="{{blog.blog_title}}" title="{{blog.blog_title}}" width="100%">
+        </div>
+        <div class="col-sm-8">
+ ->             <p>{{blog.blog_content|range_filter|linebreaks}}</p>
+                <h6>Posted By: <a href="#">@{{blog.author}}</a></h6>
+        </div>
+        </div>
+        <hr>
+        {% endfor %}
+
+        {% endblock %}
 
 
 
