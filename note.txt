@@ -1125,3 +1125,90 @@ iii. blog_details.html e comment dayar option create korte hobe:
 
 
 
+
+V12:
+46. like button:
+i. add CDN in base.html:
+
+ii. blog_details.html:
+        <a href="#">
+        <i class="far fa-thumbs-up fa-2x"></i>
+        </a>
+        <a href="#">
+        <i class="far fa-thumbs-down fa-2x"></i>
+        </a>
+
+iii. views.py:
+        @login_required
+        def liked(request, pk):
+        blog = Blog.objects.get(pk=pk)
+        user = request.user
+        already_liked = Likes.objects.filter(blog=blog, user=user)
+        if not already_liked:
+                liked_post = Likes(blog=blog, user=user)
+                liked_post.save()
+
+        return HttpResponseRedirect(reverse('App_Blog:blog_details', kwargs={'slug': blog.slug}))
+
+
+
+        @login_required
+        def unliked(request, pk):
+        blog = Blog.objects.get(pk=pk)
+        user = request.user
+        already_liked = Likes.objects.filter(blog=blog, user=user)
+        already_liked.delete()
+
+        return HttpResponseRedirect(reverse('App_Blog:blog_details', kwargs={'slug': blog.slug}))
+
+
+iv. now call it from urls.py:
+    path('liked/<pk>', views.liked, name='liked_post'),
+    path('unliked/<pk>', views.unliked, name='unliked_post'),
+
+v. edit blog_details view:
+        @login_required
+        def blog_details(request, slug):
+        blog = Blog.objects.get(slug=slug)
+        comment_form = CommentForm()
+        already_liked = Likes.objects.filter(blog=blog, user=request.user)
+        if already_liked:
+                liked = True
+        else:
+                liked = False
+        if request.method == 'POST':
+                comment_form = CommentForm(request.POST)
+                if comment_form.is_valid():
+                comment = comment_form.save(commit=False)
+                comment.user = request.user
+                comment.blog = blog
+                comment.save()
+                return HttpResponseRedirect(reverse('App_Blog:blog_details', kwargs={'slug': slug}))
+
+        return render(request, 'App_Blog/blog_details.html', context={'blog': blog, 'comment_form': comment_form, 'liked': liked})
+
+vi. blog_details.html:
+        {% if not liked %}
+        <a href="{% url 'App_Blog:liked_post' pk=blog.pk %}">
+        <i class="far fa-thumbs-up fa-2x"></i>
+        </a>
+        {% else %}
+        <a href="{% url 'App_Blog:unliked_post' pk=blog.pk %}">
+        <i class="far fa-thumbs-down fa-2x"></i>
+        </a>
+        {% endif %}
+
+
+47. like, dislike count:
+blog_details.html:
+        <h6>{{blog.liked_blog.count}} Likes |  {{blog.blog_comment.count}} Comments</h6>
+
+
+
+
+
+
+
+
+
+

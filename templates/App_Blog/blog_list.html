@@ -16,6 +16,7 @@
             <a href="{% url 'App_Blog:blog_details' slug=blog.slug %}">Read more</a>
         </p>
         <h6>Posted By: <a href="#">@{{blog.author}}</a></h6>
+        <h6>{{blog.liked_blog.count}} Likes || {{blog.blog_comment.count}} Comments</h6>
     </div>
 </div>
 <hr>
