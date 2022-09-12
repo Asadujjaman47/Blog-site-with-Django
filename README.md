@@ -1,6 +1,6 @@
 # Blog-site-with-Django
 
-
+'''
 pip list
 Package             Version
 ------------------- --------
@@ -16,3 +16,4 @@ pytz                2022.2.1
 setuptools          56.0.0
 sqlparse            0.4.2
 toml                0.10.2
+'''
