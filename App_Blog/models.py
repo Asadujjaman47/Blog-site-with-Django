@@ -16,7 +16,7 @@ class Blog(models.Model):
     update_date = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-publish_date',]
+        ordering = ('-publish_date',)
 
     def __str__(self):
         return self.blog_title
@@ -27,7 +27,7 @@ class Comment(models.Model):
         Blog, on_delete=models.CASCADE, related_name='blog_comment')
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='user_comment')
-    comment = models.TimeField()
+    comment = models.TextField()
     comment_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:

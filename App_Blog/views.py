@@ -5,7 +5,10 @@ from App_Blog.models import Blog, Comment, Likes
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-import uuid  # unique id generate
+from App_Blog.forms import CommentForm
+import uuid
+
+from App_Blog.forms import CommentForm  # unique id generate
 # Create your views here.
 
 
@@ -26,8 +29,28 @@ class CreateBlog(LoginRequiredMixin, CreateView):
         blog_obj.save()
         return HttpResponseRedirect(reverse('index'))
 
+
 class BlogList(ListView):
     context_object_name = 'blogs'
     model = Blog
     template_name = 'App_Blog/blog_list.html'
-    queryset = Blog.objects.order_by('-publish_date')
+    # queryset = Blog.objects.order_by('-publish_date')
+
+
+@login_required
+def blog_details(request, slug):
+    blog = Blog.objects.get(slug=slug)
+    comment_form = CommentForm()
+
+    if request.method == 'POST':
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.user = request.user
+            comment.blog = blog
+            comment.save()
+            return HttpResponseRedirect(reverse('App_Blog:blog_details', kwargs={'slug': slug}))
+        
+    
+    
+    return render(request, 'App_Blog/blog_details.html', context={'blog': blog, 'comment_form':comment_form})

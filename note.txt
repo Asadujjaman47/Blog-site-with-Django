@@ -1022,5 +1022,106 @@ vi. blog list: // here filter load,
         {% endblock %}
 
 
+V11: Blog details view
+44.
+i. views.py:
+        @login_required
+        def blog_details(request, slug):
+        blog = Blog.objects.get(slug=slug)
+
+        return render(request, 'App_Blog/blog_details.html', context={'blog': blog})
+
+ii. urls.py:
+    path('details/<slug:slug>', views.blog_details, name='blog_details'),
+
+iii. blog_details.html:
+{% extends 'base.html' %}
+{% block title_block %} {{blog.blog_title}} {% endblock %}
+{% block body_block %}
+<div class="row">
+    <div class="col-sm-6">
+        <h2>{{blog.blog_title}}</h2>
+        <h4>Posted By: @{{blog.author}}</h4>
+        <i><h6>Published On: {{blog.publish_date}}</h6></i>
+        <i><h6>Updated On: {{blog.update_date}}</h6></i>
+    </div>
+    <div class="col-sm-6">
+        <img src="/media/{{blog.blog_image}}" width="100%">
+    </div>
+    <p>{{blog.blog_content|linebreaks}}</p>
+</div>
+
+{% endblock %}
+
+
+
+// ekon see more thake blog_details.html e asbo:
+iv.:
+    <div class="col-sm-8">
+        <p>{{blog.blog_content|range_filter|linebreaks}} 
+            <a href="{% url 'App_Blog:blog_details' slug=blog.slug %}">Read more</a>
+        </p>
+        <h6>Posted By: <a href="#">@{{blog.author}}</a></h6>
+    </div>
+
+
+45. comment form generate:
+i. form create:
+App_Blog/forms.py:
+        from dataclasses import field
+        from django import forms
+        from App_Blog.models import Blog, Comment
+
+
+        class CommentForm(forms.ModelForm):
+        class Meta:
+                model = Comment
+                fields = ('comment', )
+
+ii. views.py:
+from App_Blog.forms import CommentForm
+
+
+        @login_required
+        def blog_details(request, slug):
+        blog = Blog.objects.get(slug=slug)
+        comment_form = CommentForm()
+
+        if request.method == 'POST':
+                comment_form = CommentForm(request.POST)
+                if comment_form.is_valid():
+                comment = comment_form.save(commit=False)
+                comment.user = request.user
+                comment.blog = blog
+                comment.save()
+                return HttpResponseRedirect(reverse('App_Blog:blog_details', kwargs={'slug': slug}))
+                
+        
+        
+        return render(request, 'App_Blog/blog_details.html', context={'blog': blog', comment_form':comment_form})
+
+iii. blog_details.html e comment dayar option create korte hobe:
+
+<div class="row">
+    <div class="col-sm-6">
+        <hr>
+        <h5>Comments:</h5>
+
+        {% for comment in blog.blog_comment.all %}
+        <p><a href="#">@{{comment.user}}</a> {{comment.comment}} <br> <h6>{{comment.comment_date}}</h6></p>
+
+        {% endfor %}
+    </div>
+    <div class="col-sm-6">
+        <form method="POST">
+            {{ comment_form|crispy }}
+            {% csrf_token %}
+            <button type="submit" name="button" class="btn btn-primary btn-sm">Comment</button>
+        </form>
+    </div>
+</div>
+<br>
+<br>
+
 
 
