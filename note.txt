@@ -502,7 +502,7 @@ ii. call user profile, write a view:
 App_Login/views.py:
         @login_required
         def profile(request):
-        return render(request, 'App_login/profile.html', context={})
+        return render(request, 'App_Login/profile.html', context={})
 
 iii. now add a link in base.html:
         <li class="nav-item">

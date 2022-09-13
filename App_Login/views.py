@@ -49,7 +49,7 @@ def logout_user(request):
 
 @login_required
 def profile(request):
-    return render(request, 'App_login/profile.html', context={})
+    return render(request, 'App_Login/profile.html', context={})
 
 
 @login_required
